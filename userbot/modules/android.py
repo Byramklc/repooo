@@ -10,7 +10,7 @@ from requests import get
 from bs4 import BeautifulSoup
 
 from userbot import CMD_HELP
-from userbot.events import register, errors_handler
+from userbot.events import register
 
 GITHUB = 'https://github.com'
 DEVICES_DATA = 'https://raw.githubusercontent.com/androidtrackers/' \
@@ -18,22 +18,27 @@ DEVICES_DATA = 'https://raw.githubusercontent.com/androidtrackers/' \
 
 
 @register(outgoing=True, pattern="^.magisk$")
-@errors_handler
 async def magisk(request):
     """ magisk latest releases """
-    url = 'https://raw.githubusercontent.com/topjohnwu/magisk_files/master/'
+    magisk_dict = {
+        "Stable":
+        "https://raw.githubusercontent.com/topjohnwu/magisk_files/master/stable.json",
+        "Beta":
+        "https://raw.githubusercontent.com/topjohnwu/magisk_files/master/beta.json",
+        "Canary (Release)":
+        "https://raw.githubusercontent.com/topjohnwu/magisk_files/canary/release.json",
+        "Canary (Debug)":
+        "https://raw.githubusercontent.com/topjohnwu/magisk_files/canary/debug.json"
+    }
     releases = 'Latest Magisk Releases:\n'
-    for variant in ['stable', 'beta', 'canary_builds/canary']:
-        data = get(url + variant + '.json').json()
-        name = variant.split('_')[0].capitalize()
+    for name, release_url in magisk_dict.items():
+        data = get(release_url).json()
         releases += f'{name}: [ZIP v{data["magisk"]["version"]}]({data["magisk"]["link"]}) | ' \
                     f'[APK v{data["app"]["version"]}]({data["app"]["link"]}) | ' \
                     f'[Uninstaller]({data["uninstaller"]["link"]})\n'
     await request.edit(releases)
 
-
 @register(outgoing=True, pattern=r"^.device(?: |$)(\S*)")
-@errors_handler
 async def device_info(request):
     """ get android device basic info from its codename """
     textx = await request.get_reply_message()
@@ -65,7 +70,6 @@ async def device_info(request):
 
 
 @register(outgoing=True, pattern=r"^.codename(?: |)([\S]*)(?: |)([\s\S]*)")
-@errors_handler
 async def codename_info(request):
     """ search for android codename """
     textx = await request.get_reply_message()
@@ -101,7 +105,6 @@ async def codename_info(request):
 
 
 @register(outgoing=True, pattern=r"^.specs(?: |)([\S]*)(?: |)([\s\S]*)")
-@errors_handler
 async def devices_specifications(request):
     """ Mobile devices specifications """
     textx = await request.get_reply_message()
@@ -155,7 +158,6 @@ async def devices_specifications(request):
 
 
 @register(outgoing=True, pattern=r"^.twrp(?: |$)(\S*)")
-@errors_handler
 async def twrp(request):
     """ get android device twrp """
     textx = await request.get_reply_message()
